@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.intermec.barcodeexample"   
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk
+        android:minSdkVersion="16"
+        android:targetSdkVersion="19" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/barcode_example_icon"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+        
+        <activity
+            android:name="com.intermec.barcodeexample.MainActivity"           
+            android:label="@string/app_name">          
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        
+         <activity
+            android:name="com.intermec.barcodeexample.BarcodeActivity"          
+            android:label="@string/barcode" >
+            <intent-filter>
+                <action android:name="android.intent.action.BARCODEACTIVITY" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        
+        <activity
+            android:name="com.intermec.barcodeexample.SymbologyActivity"           
+            android:label="@string/symbology" >
+            <intent-filter>
+                <action android:name="android.intent.action.SYMBOLOGYACTIVITY" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        
+        <activity
+            android:name="com.intermec.barcodeexample.SymbologyOptionsActivity"                 
+            android:label="@string/symbology_options" >
+            <intent-filter>
+                <action android:name="android.intent.action.SYMBOLOGYOPTIONSACTIVITY" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>

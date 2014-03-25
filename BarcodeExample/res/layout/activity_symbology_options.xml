@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" > 
+    
+    <TextView
+        android:id="@+id/symbolgyOptionTitle"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:background="#5C8A8A"
+        android:gravity="left"
+        android:padding="6dp"
+        android:text="@string/txtSymbologyOptions"
+        android:textColor="#FFFFFF"
+        android:textSize="13sp" >
+    </TextView>    	
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"       
+        android:layout_below="@+id/symbolgyOptionTitle"
+        android:orientation="vertical" >    
+
+        <TextView
+            android:id="@+id/textViewPreamble"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/txtPreamble"
+            android:textSize="19sp" />
+
+        <EditText
+            android:id="@+id/editTextPreamble"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="@string/editPreamble"/>
+            
+        <TextView
+            android:id="@+id/textViewPostamble"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:text="@string/txtPostamble"
+            android:textSize="19sp" />
+
+        <EditText
+            android:id="@+id/editTextPostamble"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="@string/editPostamble" />
+
+        <TextView
+            android:id="@+id/textViewSymbologyIdentifier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:text="@string/txtSymbologyIdentifier"
+            android:textSize="19sp" />
+
+        <Spinner
+            android:id="@+id/spinnerSymbologyIdentifier"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" 
+            android:layout_marginTop="10dp"/>
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/buttonSet"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:text="@string/btnSetSymbologyOptions" />
+
+</RelativeLayout>

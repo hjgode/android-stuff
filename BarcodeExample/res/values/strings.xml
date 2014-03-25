@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Barcode Example</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="menu_settings">Settings</string>
+    <string name="barcode">Barcode</string>
+    <string name="symbology">Symbology</string>
+    <string name="symbology_options">Symbology Options</string>
+    <string name="btnBarcode">Barcode</string>
+    <string name="btnSymbology">Symbology</string>
+    <string name="btnSymbologyOptions">Symbology Options</string>
+    <string name="txtBarcodeTitle">Press the center blue button, then scan a barcode.</string>
+    <string name="txtMainTitle">Click on below buttons for options.</string>
+    <string name="txtSymbologyTitle">Click on symbology names to enable or disable sysmbologies.</string>
+    <string name="txtSymbologyOptions">"Enter preamble, postamble strings, select the symbology identifier options, then click on the Set button."</string>
+    <string name="txtPreamble">Preamble</string>
+    <string name="editPreamble"></string>
+    <string name="editPostamble"></string>
+    <string name="txtPostamble">Postamble</string>
+    <string name="txtSymbologyIdentifier">Symbology Identifier</string>
+    <string name="btnSetSymbologyOptions">Set</string>
+
+</resources>
