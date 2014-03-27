@@ -1,0 +1,215 @@
+package com.example.bttest;
+
+import android.R.string;
+import android.os.Bundle;
+import android.app.Activity;
+import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
+import android.view.Menu;
+import android.view.View;
+import android.widget.*;
+import android.bluetooth.*;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+
+public class MainActivity extends Activity {
+
+	private static final int ENABLE_BLUETOOTH = 1;
+	
+	//a log view
+	TextView mTxtOutput;
+	BluetoothAdapter bluetooth;
+    ToggleButton btOnOffButton=null;
+    IntentFilter btFilter=new IntentFilter();
+    
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		try{
+		setContentView(R.layout.activity_main);
+		
+		bluetooth = BluetoothAdapter.getDefaultAdapter(); 
+		if(bluetooth==null){
+			showToast("No Bluetooth Adapter!");
+			addText("No BT Adapter");
+		}
+		else{
+			addText("BT adapter found");
+		}
+	    // Register for broadcasts on BluetoothAdapter state change
+	    //IntentFilter filter = new IntentFilter();
+
+	    // Bluetooth on/off broadcasts
+        btFilter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
+
+        // Discovery broadcasts
+        btFilter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
+        btFilter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+        btFilter.addAction(BluetoothDevice.ACTION_FOUND);
+        btFilter.addAction(BluetoothDevice.ACTION_NAME_CHANGED);
+	    	    
+	    this.registerReceiver(onBTchange, btFilter);
+	    addText("broadcast receiver setup OK");
+	    
+	    //initBluetooth();
+		
+		btOnOffButton=(ToggleButton)findViewById(R.id.toggleButton1);
+		setToggleButtonOnClickListener();
+		
+		mTxtOutput = (TextView)findViewById(R.id.txtOutput);
+		mTxtOutput.setMovementMethod(ScrollingMovementMethod.getInstance());
+		
+		//add some lines of text
+		//for(int i=0; i<30; i++)
+		//	addText("Line " +  i);
+		}catch(Exception ex){
+			Log.d("btTest","Exception in OnCreat(): " + ex.getMessage());
+		}
+	}
+
+	@Override
+	public void onPause(){
+		super.onPause();
+	    // Unregister broadcast listeners
+	    this.unregisterReceiver(onBTchange);
+	}
+    
+	@Override
+    public void onDestroy(){
+    	super.onDestroy();
+	    // Unregister broadcast listeners
+	    this.unregisterReceiver(onBTchange);
+    }
+    
+	@Override
+	public void onRestoreInstanceState(Bundle savedInstanceState){
+		super.onRestoreInstanceState(savedInstanceState);
+		this.registerReceiver(onBTchange, btFilter);
+	}
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.main, menu);
+		return true;
+	}
+	
+	void showToast(String message){
+		Context context = this;
+		String msg = message;
+		int duration = Toast.LENGTH_SHORT;
+		Toast toast = Toast.makeText(context, msg, duration);
+		toast.show();
+	}
+	
+ 	void setToggleButtonOnClickListener(){
+		btOnOffButton=(ToggleButton)findViewById(R.id.toggleButton1);
+		btOnOffButton.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				if(bluetooth.isEnabled()){
+					stopBluetooth();
+				}
+				else{
+					startBluetooth();
+					//bluetooth.enable();
+				}
+				//updateToggleButton();
+			}
+		});
+    }
+    void addText(String s){
+    	
+    	if(mTxtOutput==null){
+    		mTxtOutput=(TextView)findViewById(R.id.txtOutput);    		
+    	}
+    	mTxtOutput.append(s + "\n");
+    	/*
+        // find the amount we need to scroll.  This works by
+        // asking the TextView's internal layout for the position
+        // of the final line and then subtracting the TextView's height
+        final int scrollAmount = mTxtOutput.getLayout().getLineTop(mTxtOutput.getLineCount()) - mTxtOutput.getHeight();
+        // if there is no need to scroll, scrollAmount will be <=0
+        if (scrollAmount > 0)
+        	mTxtOutput.scrollTo(0, scrollAmount);
+        else
+        	mTxtOutput.scrollTo(0, 0);
+        
+    	//mTxtOutput.refreshDrawableState();
+    	*/
+    	Log.d("btTest", s);
+    }
+    
+    //receiver for BT state changes
+    private final BroadcastReceiver onBTchange = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+        	String prevStateExtra = BluetoothAdapter.EXTRA_PREVIOUS_STATE;
+        	String stateExtra = BluetoothAdapter.EXTRA_STATE;
+        	//int stateInt = intent.getIntExtra(stateExtra, -1);
+        	//int previousStateInt = intent.getIntExtra(prevStateExtra, -1);
+	  	  String action = intent.getAction();
+	  	  Log.d("btTest", "onReceive: " + action);
+	      if(BluetoothAdapter.ACTION_STATE_CHANGED==action){
+	          addText("BA: "+action);
+	    	  final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
+	          addText("BA extra="+state);
+	          
+				switch (state) {
+					case BluetoothAdapter.STATE_OFF:
+						addText("Bluetooth off");
+						//updateToggleButton();
+						btOnOffButton.setChecked(false);
+						break;
+					case BluetoothAdapter.STATE_TURNING_OFF:
+						addText("Turning Bluetooth off...");
+						break;
+					case BluetoothAdapter.STATE_ON:
+						addText("Bluetooth on");
+						//updateToggleButton();
+						btOnOffButton.setChecked(true);
+						break;
+					case BluetoothAdapter.STATE_TURNING_ON:
+						addText("Turning Bluetooth on...");
+						break;
+				}
+	      }
+    	
+        }
+    };
+
+    private void startBluetooth() {
+        if (!bluetooth.isEnabled()) {
+      	  addText("Bluetooth was off");
+          // Bluetooth isn't enabled, prompt the user to turn it on.
+          Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+          startActivityForResult(intent, ENABLE_BLUETOOTH);
+        } else {
+      	  addText("Bluetooth was on");
+          // Bluetooth is enabled, initialize the UI.
+          //initBluetoothUI();
+        }
+        if (bluetooth.isEnabled())
+      	  addText("Bluetooth is on");
+        else
+      	  addText("Bluetooth is off");
+      }
+
+	private void stopBluetooth() {
+	    if (bluetooth.isEnabled()) {
+	  	  addText("Bluetooth was on");
+	  	  if(bluetooth.disable())
+	  		  addText("BT disable OK");
+	  	  else
+	  		  addText("BT disable failed");
+	    } else {
+	  	  addText("Bluetooth already off");
+	      // Bluetooth is enabled, initialize the UI.
+	      //initBluetoothUI();
+	    }
+	  }
+	}
+

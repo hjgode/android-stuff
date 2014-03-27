@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">LinePrinterSample</string>
+    <string name="action_settings">Settings</string>
+    <string name="print">Print</string>
+    <string name="MacAddress">Mac Address:</string>
+    <string name="ProgressStatus">Progress and Status</string>
+    <string name="OptionalText">Optional Text:</string>
+
+</resources>

@@ -1,0 +1,58 @@
+{
+  "LINEPRINTERCONTROL":
+  {
+    "FormatVersion": "1.0.0.0",
+    "DEFAULTS":
+    {
+      "BoldIsFont": true, "BoldOff": "[0x1b,0x77,!]", "BoldOn": "[0x1b,0x77,0x6D]",
+      "CompressDotsHigh": 12, "CompressIsFont": true, "CompressOff": "[0x1b,0x77,!]",
+      "CompressOn": "[0x1b,0x77,0x42]", "DoubleHighDotsHigh": 32, "DoubleHighIsFont": false,
+      "DoubleHighMask": 16, "DoubleHighOff": "[0x1b,!,0x10]", "DoubleHighOn": "[0x1b,!,0x10]",
+      "DoubleWideDotsHigh": 16, "DoubleWideHighPrefix": "[0x1b,!]", "DoubleWideIsFont": false,
+      "DoubleWideMask": 32, "DoubleWideOff": "[0x1b,!,0x20]", "DoubleWideOn": "[0x1b,!,0x20]",
+      "Initialize": "[0x00,0x00,0x00,0x00,0x1b,0x40,0x00,0x00,0x00]",
+      "NormalFont": "[0x1b,0x77,!,0x1b,!,0x00]", "NewLine": "[0x0d]", "NormalDotsHigh": 16,
+      "PrintHeadWidth": 384, "UseDoubleHWMask": true, "ValidateAttribOnFont": true,
+      "ValidateAttribOnNewLn": true, "NullsBeforeClose": 0, "PreCloseDelay": 0, "EndOfGraphicsDelay": 0, 
+      "PostGraphicsDelay": 0, "PostGraphicsLineDelay": 0, "PreGraphicsDelay": 0, "StartOfGraphicsDelay": 0
+    },
+
+    "PRINTERS":
+    {
+      "PR2":
+      {
+        "INCLUDE_01": "PR_SETTINGS",  "DisplayName":"PR2 Bt Printer",  "PrintHeadWidth": 384
+      },
+
+      "PR3":
+      {
+        "INCLUDE_01": "PR_SETTINGS",  "DisplayName":"PR3 Bt Printer",  "PrintHeadWidth": 576
+      },
+
+      "PB21":
+      {
+        "DisplayName":"PB21 Bt Printer", "PrintHeadWidth": 384
+      },
+
+      "PB31":
+      {
+        "DisplayName":"PB31 Bt Printer", "PrintHeadWidth": 576
+      },
+
+      "PB42":
+      {
+        "DisplayName":"PB42 Bt Printer", "PrintHeadWidth": 832, "PreCloseDelay": 4500, "NullsBeforeClose": 4000
+      },
+
+      "PB51":
+      {
+        "DisplayName":"PB51 Bt Printer", "PrintHeadWidth": 832, "PreCloseDelay": 500
+      },
+
+      "PR_SETTINGS":
+      {
+        "PostGraphicsDelay": 1000, "PostGraphicsLineDelay": 10, "PreCloseDelay": 1000, "NullsBeforeClose": 8000
+      }
+    }
+  }
+}

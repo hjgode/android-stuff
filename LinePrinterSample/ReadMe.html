@@ -1,0 +1,244 @@
+<html>
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=Generator content="Microsoft Word 14 (filtered)">
+<title>PowerStatusSample ReadMe</title>
+<style>
+<!--
+ /* Font Definitions */
+ @font-face
+	{font-family:Wingdings;
+	panose-1:5 0 0 0 0 0 0 0 0 0;}
+@font-face
+	{font-family:Wingdings;
+	panose-1:5 0 0 0 0 0 0 0 0 0;}
+@font-face
+	{font-family:Tahoma;
+	panose-1:2 11 6 4 3 5 4 4 2 4;}
+@font-face
+	{font-family:Verdana;
+	panose-1:2 11 6 4 3 5 4 4 2 4;}
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:11.0pt;
+	font-family:"Tahoma","sans-serif";}
+p.MsoCaption, li.MsoCaption, div.MsoCaption
+	{margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	font-size:10.0pt;
+	font-family:"Tahoma","sans-serif";
+	font-weight:bold;}
+a:link, span.MsoHyperlink
+	{color:blue;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:purple;
+	text-decoration:underline;}
+p.MsoAcetate, li.MsoAcetate, div.MsoAcetate
+	{mso-style-link:"Balloon Text Char";
+	margin:0in;
+	margin-bottom:.0001pt;
+	font-size:8.0pt;
+	font-family:"Tahoma","sans-serif";}
+p.MsoListParagraph, li.MsoListParagraph, div.MsoListParagraph
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:.5in;
+	margin-bottom:.0001pt;
+	font-size:11.0pt;
+	font-family:"Tahoma","sans-serif";}
+p.MsoListParagraphCxSpFirst, li.MsoListParagraphCxSpFirst, div.MsoListParagraphCxSpFirst
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:.5in;
+	margin-bottom:.0001pt;
+	font-size:11.0pt;
+	font-family:"Tahoma","sans-serif";}
+p.MsoListParagraphCxSpMiddle, li.MsoListParagraphCxSpMiddle, div.MsoListParagraphCxSpMiddle
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:.5in;
+	margin-bottom:.0001pt;
+	font-size:11.0pt;
+	font-family:"Tahoma","sans-serif";}
+p.MsoListParagraphCxSpLast, li.MsoListParagraphCxSpLast, div.MsoListParagraphCxSpLast
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:.5in;
+	margin-bottom:.0001pt;
+	font-size:11.0pt;
+	font-family:"Tahoma","sans-serif";}
+span.BalloonTextChar
+	{mso-style-name:"Balloon Text Char";
+	mso-style-link:"Balloon Text";
+	font-family:"Tahoma","sans-serif";}
+.MsoChpDefault
+	{font-size:10.0pt;}
+@page WordSection1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.25in 1.0in 1.25in;}
+div.WordSection1
+	{page:WordSection1;}
+ /* List Definitions */
+ ol
+	{margin-bottom:0in;}
+ul
+	{margin-bottom:0in;}
+-->
+</style>
+
+</head>
+
+<body lang=EN-US link=blue vlink=purple>
+
+<div class=WordSection1>
+
+<p class=MsoNormal style='margin-top:12.0pt;margin-right:0in;margin-bottom:
+3.0pt;margin-left:0in;line-height:24.0pt'><b><span style='font-size:22.0pt;
+font-family:"Verdana","sans-serif";color:gray'>LinePrinterSample</span></b></p>
+
+<p class=MsoNormal>&nbsp;</p>
+
+<p class=MsoNormal>&nbsp;</p>
+
+<ul style='margin-top:0in' type=square>
+ <li class=MsoNormal><a href="#_Sample_Overview">Sample Overview</a></li>
+ <li class=MsoNormal><a href="#_Requirements_and_Dependencies">Runtime
+     Requirements and Dependencies</a></li>
+ <li class=MsoNormal><a href="#_Building_the_Sample">Building the Sample</a></li>
+ <li class=MsoNormal><a href="#_Running_the_Sample">Running the Sample</a></li>
+</ul>
+
+<p class=MsoNormal>&nbsp;</p>
+
+<p class=MsoNormal style='margin-top:6.0pt;margin-right:0in;margin-bottom:3.0pt;
+margin-left:0in'><a name="_Toc21230997"></a><a name="_Sample_Overview"></a><b><span
+style='font-size:18.0pt'>Sample Overview</span></b></p>
+
+<p class=MsoNormal style='margin-left:.25in'>&nbsp;</p>
+
+<p class=MsoNormal style='margin-left:.25in'>This sample application
+demonstrates printing from an Android computer to an Intermec PR2 printer using
+the LinePrinter API. You may enter or scan the MAC address barcode on the back
+of a PR2 printer and click the Print button to print. The MAC Address text
+should have the format of “nn:nn:nn:nn:nn:nn” where each n is a hex digit.</p>
+
+<p class=MsoNormal style='margin-left:.25in'>&nbsp;</p>
+
+<p class=MsoNormal style='margin-left:.25in'>Included with the application is a
+printer_profiles.JSON file (found in the “assets” subfolder) that provides
+support for several other Intermec printer models running the ESC/P language:  PR2,
+PR3, PB21, PB31, PB42, and PB51.  To use the sample with one of those other
+printer options, replace the “PR2” printer ID parameter in the LinePrinter
+class constructor (found in PrintActivity.java) and rebuild/redeploy the
+application.</p>
+
+<p class=MsoNormal>&nbsp;</p>
+
+<p class=MsoNormal style='margin-top:6.0pt;margin-right:0in;margin-bottom:3.0pt;
+margin-left:0in'><a name="_Toc21230998"></a><a name="_Requirements"></a><a
+name="_Requirements_and_Dependencies"></a><b><span style='font-size:18.0pt'>Runtime
+Requirements</span></b><b><span style='font-size:18.0pt'> and Dependencies</span></b></p>
+
+<p class=MsoNormal style='margin-top:6.0pt;margin-right:0in;margin-bottom:3.0pt;
+margin-left:0in'>&nbsp;</p>
+
+<ul style='margin-top:0in' type=disc>
+ <li class=MsoNormal><b><span style='font-size:12.0pt'>Platform</span></b></li>
+</ul>
+
+<p class=MsoNormal style='margin-left:.5in'>Intermec CN51 with Android OS.</p>
+
+<p class=MsoNormal style='margin-left:.5in'>Other non-Intermec Android
+computers may work if they meet the following requirements:</p>
+
+<p class=MsoListParagraphCxSpFirst style='margin-left:1.0in;text-indent:-.25in'>1.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp; </span>The computer has
+an ARM based processor.</p>
+
+<p class=MsoListParagraphCxSpMiddle style='margin-left:1.0in;text-indent:-.25in'>2.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp; </span>The computer is
+equipped with a Bluetooth radio.</p>
+
+<p class=MsoListParagraphCxSpMiddle style='margin-left:1.0in;text-indent:-.25in'>3.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp; </span>The computer has
+Android 2.3.3 (Gingerbread) API level 10 or greater.</p>
+
+<p class=MsoListParagraphCxSpLast style='margin-left:1.0in;text-indent:-.25in'>4.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp; </span>LinePrintService-release.apk
+must be installed before running this sample. LinePrintService-release.apk is
+in the “intermec-android-printing-sdk\libs\armeabi” subfolder of the downloaded
+zip file.</p>
+
+<p class=MsoNormal style='margin-left:.5in'>&nbsp;</p>
+
+<ul style='margin-top:0in' type=disc>
+ <li class=MsoNormal><b><span style='font-size:12.0pt'>LinePrinter.JAR</span></b></li>
+</ul>
+
+<p class=MsoNormal style='margin-left:.5in'>This sample uses the LinePrinter class;
+therefore, it depends on LinePrinter.jar. A copy of LinePrinter.jar is included
+in the “libs” subfolder of the LinePrinterSample project folder. When you build
+the LinePrinterSample project, the contents of the LinePrinter.jar will be
+added to the LinePrinterSample’s APK file.</p>
+
+<p class=MsoNormal>&nbsp;</p>
+
+<p class=MsoNormal><a name="_Topics"></a>&nbsp;</p>
+
+<p class=MsoNormal style='margin-top:6.0pt;margin-right:0in;margin-bottom:3.0pt;
+margin-left:0in'><a name="_Building_the_Sample"></a><b><span style='font-size:
+18.0pt'>Building the Sample</span></b></p>
+
+<p class=MsoNormal>&nbsp;</p>
+
+<p class=MsoNormal style='margin-left:.25in'>You may build the sample from
+Eclipse with ADT plug-in. First import the project into Eclipse and Eclipse
+will automatically build it whenever the code changes are saved. The build
+output will be in the “bin” subfolder. The sample includes a pre-built version
+of the APK called “LinePrinterSample-release.apk”. When you build from Eclipse,
+the APK file name should be “LinePrinterSample.apk”.</p>
+
+<p class=MsoNormal>&nbsp;</p>
+
+<p class=MsoNormal style='margin-left:.25in'>&nbsp;</p>
+
+<p class=MsoNormal style='margin-top:6.0pt;margin-right:0in;margin-bottom:3.0pt;
+margin-left:0in'><a name="_Toc21230999"></a><a name="_Running_the_Sample"></a><b><span
+style='font-size:18.0pt'>Running the Sample</span></b></p>
+
+<ul style='margin-top:0in' type=disc>
+ <li class=MsoNormal style='margin-top:6.0pt;margin-bottom:3.0pt'>Install the
+     LinePrinterSample on the target Android computer. You may use the
+     following command line to install the sample:</li>
+</ul>
+
+<p class=MsoNormal style='margin-top:6.0pt;margin-right:0in;margin-bottom:3.0pt;
+margin-left:.5in'><span style='font-family:"Courier New"'>adb install
+LinePrinterSample-release.apk</span></p>
+
+<ul style='margin-top:0in' type=disc>
+ <li class=MsoNormal style='margin-top:6.0pt;margin-bottom:3.0pt'>Open the APPS
+     screen on your Android computer and locate the LinePrinterSample icon. Tap
+     on it to start the application.</li>
+</ul>
+
+<p class=MsoNormal style='margin-top:6.0pt;margin-right:0in;margin-bottom:3.0pt;
+margin-left:0in'>&nbsp;</p>
+
+<p class=MsoNormal><a name="_Notes"></a>&nbsp;</p>
+
+</div>
+
+</body>
+
+</html>

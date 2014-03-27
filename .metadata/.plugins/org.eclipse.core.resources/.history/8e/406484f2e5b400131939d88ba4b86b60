@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="hello">Hello World, PA4AD_Ch16_BluetoothActivity!</string>
+    <string name="app_name">PA4AD_Ch16_Bluetooth</string>
+    <string name="enable_bluetooth">Enable Bluetooth</string>
+    <string name="search_bluetooth">Search Bluetooth</string>
+    <string name="TestText">TestText</string>
+    <string name="selectButtonString">Select Device</string>
+    <string name="btOn">BT ein</string>
+
+</resources>

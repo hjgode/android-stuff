@@ -1,0 +1,92 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context=".PrintActivity" >
+
+    <LinearLayout
+        android:id="@+id/linearLayoutInput"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:orientation="vertical" >
+ 
+        <TextView
+            android:id="@+id/textMacAddr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/MacAddress"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/editMacAddr"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:inputType="textNoSuggestions"
+            android:selectAllOnFocus="true"
+            android:textSize="18sp" />
+        
+        <TextView
+            android:id="@+id/textOptPrint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="@string/OptionalText"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+        
+        <EditText
+            android:id="@+id/editUserText"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:textSize="18sp"
+            android:selectAllOnFocus="true"
+            android:inputType="text" />
+        
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/buttonPrint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/linearLayoutInput"
+        android:layout_alignBottom="@+id/linearLayoutInput"
+        android:layout_marginLeft="10dp"
+        android:text="@string/print"
+        android:textStyle="bold"
+        android:width="80dp" />
+    
+    <TextView
+        android:id="@+id/textProgress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/linearLayoutInput"
+        android:text="@string/ProgressStatus"
+        android:layout_marginTop="10dp"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+    
+    <TextView
+        android:id="@+id/textMsg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/textProgress"
+        android:layout_marginTop="10dp"
+        android:gravity="top|left"
+        android:lines="10"
+        android:textIsSelectable="true"
+        android:background="#AFEEEE"
+        android:textSize="18sp" />
+
+</RelativeLayout>

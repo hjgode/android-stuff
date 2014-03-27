@@ -1,0 +1,357 @@
+package com.paad.bluetooth;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.UUID;
+
+import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothServerSocket;
+import android.bluetooth.BluetoothSocket;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.app.ListActivity;
+import android.widget.*;
+
+public class BluetoothActivity extends Activity {
+  
+    protected static final String TAG = "BLUETOOTH";
+    protected static final int DISCOVERY_REQUEST = 1;
+    BluetoothAdapter bluetooth;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+      super.onCreate(savedInstanceState);
+      setContentView(R.layout.main);
+      
+      /**
+       * Listing 16-1: Accessing the default Bluetooth Adapter
+       */
+      BluetoothAdapter bluetooth = BluetoothAdapter.getDefaultAdapter();   
+      
+      //copy to global var
+      this.bluetooth = bluetooth;
+      
+      updateToggleButton();
+      
+      setToggleButtonOnClickListener();
+      
+      initSpinner();
+      setEnableButtonOnClickListener();
+      setSearchButtonOnClickListener();
+      setSelectButtonOnClickListener();
+    }
+    
+    void updateToggleButton(){
+        ToggleButton btOnOff = (ToggleButton)findViewById(R.id.toggleButton1);
+        if(this.bluetooth.isEnabled())
+      	  btOnOff.setChecked(true);
+        else
+      	  btOnOff.setChecked(false);
+    
+    }
+    
+	void setToggleButtonOnClickListener(){
+    	Button toggleDevice=(Button)findViewById(R.id.toggleButton1);
+    	toggleDevice.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				updateToggleButton();
+			}
+		});
+    }
+    Spinner spinner1;
+    ArrayList<String> btStringList=new ArrayList<String>();
+    ArrayAdapter<String> dataAdapter;
+    CustomOnItemSelectedListener listItemListener;
+    private void initSpinner() {
+    	btStringList.clear();
+    	btStringList.add("Zeile1");
+    	btStringList.add("Zeile2");
+    	btStringList.add("Zeile3");
+    	
+    	spinner1 = (Spinner) findViewById(R.id.spinnerBT);
+    	dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, btStringList);
+    	//dataAdapter.setDropDownViewResource(android.R.layout.simple_list_item_single_choice);
+    	spinner1.setAdapter(dataAdapter);
+		spinner1 = (Spinner) findViewById(R.id.spinnerBT);
+		listItemListener=new CustomOnItemSelectedListener();
+		spinner1.setOnItemSelectedListener(listItemListener); 
+	}
+
+	void setSelectButtonOnClickListener(){
+    	Button selectDevice=(Button)findViewById(R.id.selectButton);
+    	selectDevice.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				TextView tvMac = (TextView)findViewById(R.id.editMac);
+				spinner1=(Spinner)findViewById(R.id.spinnerBT);
+				
+				tvMac.setText(spinner1.getSelectedItem().toString());
+				tvMac.refreshDrawableState();
+			}
+		});
+    }
+    void setEnableButtonOnClickListener(){
+        Button enableButton=(Button)findViewById(R.id.buttonEnable);
+        enableButton.setOnClickListener(new View.OnClickListener() {		
+	  		@Override
+	  		public void onClick(View arg0) {
+	  			initBluetooth();
+	  		}
+        });
+    }
+    
+    void setSearchButtonOnClickListener(){
+    	Button searchButton=(Button)findViewById(R.id.searchButton);
+    	searchButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				if (!bluetooth.isEnabled()){
+					addText("Bluetooth is OFF");
+					return;
+				}
+				startDiscovery();
+			}
+		});
+    }
+    
+    void addItem(String s){
+    	btStringList.add(s);
+    	//dataAdapter.add(s);
+    }
+    
+    
+    static TextView txtLog=null;
+    void addText(String s){
+    	if(txtLog==null){
+    		txtLog=(TextView)findViewById(R.id.textView1);
+    		
+    	}
+    	txtLog.append(s + "\n");
+    	txtLog.refreshDrawableState();
+    }
+
+    /**
+     * Listing 16-2: Enabling Bluetooth
+     */
+    private static final int ENABLE_BLUETOOTH = 1;
+
+    private void initBluetooth() {
+      if (!bluetooth.isEnabled()) {
+    	  addText("Bluetooth was off");
+        // Bluetooth isn't enabled, prompt the user to turn it on.
+        Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+        startActivityForResult(intent, ENABLE_BLUETOOTH);
+      } else {
+    	  addText("Bluetooth was on");
+        // Bluetooth is enabled, initialize the UI.
+        initBluetoothUI();
+      }
+      if (bluetooth.isEnabled())
+    	  addText("Bluetooth is on");
+      else
+    	  addText("Bluetooth is off");
+    }
+
+    protected void onActivityResult(int requestCode,
+                                    int resultCode, Intent data) {
+      if (requestCode == ENABLE_BLUETOOTH)
+        if (resultCode == RESULT_OK) {
+          // Bluetooth has been enabled, initialize the UI.
+          initBluetoothUI();
+        }
+      
+      /**
+       * Listing 16-4: Monitoring discoverability request approval
+       */
+      if (requestCode == DISCOVERY_REQUEST) {
+        if (resultCode == RESULT_CANCELED) {
+          Log.d(TAG, "Discovery cancelled by user");
+        }
+      }
+
+    }
+    
+    private void makeDiscoverable() {
+      /**
+       * Listing 16-3: Enabling discoverability
+       */
+      startActivityForResult(
+        new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE),
+                   DISCOVERY_REQUEST);
+    }
+    
+    /**
+     * Listing 16-5: Discovering remote Bluetooth Devices
+     */
+    private ArrayList<BluetoothDevice> deviceList = 
+      new ArrayList<BluetoothDevice>();
+    
+    private void startDiscovery() {
+    	registerReceiver(discoveryResult, new IntentFilter(BluetoothDevice.ACTION_FOUND));
+
+      if (bluetooth.isEnabled() && !bluetooth.isDiscovering()){
+      	addText("Discovery started");
+        deviceList.clear();
+        btStringList.clear();
+        spinner1.refreshDrawableState();
+        bluetooth.startDiscovery();
+      }
+      else{
+        	addText("Discovery already running");
+      }
+    }
+
+    //this is called for every discovered device
+    BroadcastReceiver discoveryResult = new BroadcastReceiver() {
+      @Override
+      public void onReceive(Context context, Intent intent) {
+    	  String action = intent.getAction();
+    	  if(BluetoothAdapter.ACTION_DISCOVERY_FINISHED==action){
+    		  addText("Discovery finished");
+    		  dataAdapter.notifyDataSetChanged();
+    	  }
+    	  
+        String remoteDeviceName = intent.getStringExtra(BluetoothDevice.EXTRA_NAME);
+        BluetoothDevice remoteDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+
+        deviceList.add(remoteDevice);
+        addText(remoteDeviceName + "(" + remoteDevice.getAddress().toString() + ")");
+        addItem(remoteDevice.getAddress().toString());
+        
+        Log.d(TAG, "Discovered " + remoteDeviceName);
+      }
+    };
+    
+    /**
+     * Listing 16-6: Listening for Bluetooth Socket connection requests
+     */
+    private BluetoothSocket transferSocket;
+
+    private UUID startServerSocket(BluetoothAdapter bluetooth) {
+      UUID uuid = UUID.fromString("a60f35f0-b93a-11de-8a39-08002009c666");
+      String name = "bluetoothserver";
+
+      try {
+        final BluetoothServerSocket btserver = 
+          bluetooth.listenUsingRfcommWithServiceRecord(name, uuid);
+
+        Thread acceptThread = new Thread(new Runnable() {
+          public void run() {
+            try {
+              // Block until client connection established.
+              BluetoothSocket serverSocket = btserver.accept();
+              // Start listening for messages.
+              StringBuilder incoming = new StringBuilder();
+              listenForMessages(serverSocket, incoming);
+              // Add a reference to the socket used to send messages.
+              transferSocket = serverSocket;
+            } catch (IOException e) {
+              Log.e("BLUETOOTH", "Server connection IO Exception", e);
+            }
+          }
+        });
+        acceptThread.start();
+      } catch (IOException e) {
+        Log.e("BLUETOOTH", "Socket listener IO Exception", e);
+      }
+      return uuid;
+    }
+
+    /**
+     * Listing 16-7: Creating a Bluetooth client socket
+     */
+    private void connectToServerSocket(BluetoothDevice device, UUID uuid) {
+      try{
+        BluetoothSocket clientSocket 
+          = device.createRfcommSocketToServiceRecord(uuid);
+
+        // Block until server connection accepted.
+        clientSocket.connect();
+
+        // Start listening for messages.
+        StringBuilder incoming = new StringBuilder();
+        listenForMessages(clientSocket, incoming);
+
+        // Add a reference to the socket used to send messages.
+        transferSocket = clientSocket;
+
+      } catch (IOException e) {
+        Log.e("BLUETOOTH", "Blueooth client I/O Exception", e);
+      }
+    }
+
+    /**
+     * Listing 16-8: Sending and receiving strings using Bluetooth Sockets
+     */
+    private void sendMessage(BluetoothSocket socket, String message) {
+      OutputStream outStream;
+      try {
+        outStream = socket.getOutputStream();
+
+        // Add a stop character.
+        byte[] byteArray = (message + " ").getBytes();
+        byteArray[byteArray.length - 1] = 0;
+
+        outStream.write(byteArray);
+      } catch (IOException e) { 
+        Log.e(TAG, "Message send failed.", e);
+      }
+    }
+
+    private boolean listening = false;
+     
+    private void listenForMessages(BluetoothSocket socket, 
+                                   StringBuilder incoming) {
+      listening = true;
+
+
+      int bufferSize = 1024;
+      byte[] buffer = new byte[bufferSize];
+
+      try {
+        InputStream instream = socket.getInputStream();
+        int bytesRead = -1;
+
+        while (listening) {
+          bytesRead = instream.read(buffer);
+          if (bytesRead != -1) {
+            String result = "";
+            while ((bytesRead == bufferSize) &&
+                   (buffer[bufferSize-1] != 0)){
+              result = result + new String(buffer, 0, bytesRead - 1);
+              bytesRead = instream.read(buffer);
+            }
+            result = result + new String(buffer, 0, bytesRead - 1);
+            incoming.append(result);
+          }
+          socket.close();
+        }
+      } catch (IOException e) {
+        Log.e(TAG, "Message received failed.", e);
+      }
+      finally {
+      }
+    }
+    
+    private void initBluetoothUI() {
+      // TODO Update the UI now that Bluetooth is enabled. 
+    	
+    }
+}
+

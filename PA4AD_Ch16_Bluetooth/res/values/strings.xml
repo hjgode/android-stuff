@@ -7,5 +7,7 @@
     <string name="search_bluetooth">Search Bluetooth</string>
     <string name="TestText">TestText</string>
     <string name="selectButtonString">Select Device</string>
+    <string name="btOn">BT ein</string>
+    <string name="btOff">BT aus</string>
 
 </resources>

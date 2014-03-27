@@ -1,0 +1,33 @@
+import android.os.AsyncTask;
+import android.os.Bundle;
+//import android.os.Environment;
+import android.app.Activity;
+import android.content.res.AssetManager;
+import android.view.Menu;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.Window;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import java.io.*;
+
+public class BluetoothTexting extends Activity {
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+	super.onCreate(savedInstanceState);
+	setContentView( R.layout.main);
+	// Get the Bluetooth Adapter
+	configureBluetooth();
+	// Setup the ListView of discovered devices
+	setupListView();
+	// Setup search button
+	setupSearchButton();
+	// Setup listen button
+	setupListenButton();
+}
+
+private void configureBluetooth() {}
+private void setupListenButton() {}
+private void setupListView() {}
+private void setupSearchButton(){}

@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.UUID;
-
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -16,9 +15,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.text.Layout;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.ToggleButton;
 import android.app.ListActivity;
 import android.widget.*;
 
@@ -27,25 +30,108 @@ public class BluetoothActivity extends Activity {
     protected static final String TAG = "BLUETOOTH";
     protected static final int DISCOVERY_REQUEST = 1;
     BluetoothAdapter bluetooth;
+    IntentFilter btFilter=new IntentFilter();
+    
+    ToggleButton btOnOffButton=null;
+    Button btSearch=null;
+    
+    String gTag="BluetoothActivity";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.main);
       
-      /**
-       * Listing 16-1: Accessing the default Bluetooth Adapter
-       */
-      BluetoothAdapter bluetooth = BluetoothAdapter.getDefaultAdapter();   
+		bluetooth = BluetoothAdapter.getDefaultAdapter(); 
+		if(bluetooth==null){
+			showToast("No Bluetooth Adapter!");
+			addText("No BT Adapter");
+		}
+		else{
+			addText("BT adapter found");
+		}
+		     
+		setupBTbroadcastReceiver();
+		
+      btOnOffButton=(ToggleButton)findViewById(R.id.toggleButton1);
+      btSearch=(Button)findViewById(R.id.searchButton);
       
-      //
-      this.bluetooth = bluetooth;
+      updateToggleButton();
+      
+      setToggleButtonOnClickListener();
+      
       initSpinner();
-      setEnableButtonOnClickListener();
       setSearchButtonOnClickListener();
       setSelectButtonOnClickListener();
+
     }
     
+	@Override
+	public void onPause(){
+		super.onPause();
+	    // Unregister broadcast listeners
+	    this.unregisterReceiver(onBTchange);
+	}
+    
+	@Override
+    public void onDestroy(){
+    	super.onDestroy();
+	    // Unregister broadcast listeners
+	    this.unregisterReceiver(onBTchange);
+    }
+
+	void showToast(String message){
+		Context context = this;
+		String msg = message;
+		int duration = Toast.LENGTH_SHORT;
+		Toast toast = Toast.makeText(context, msg, duration);
+		toast.show();
+	}
+	
+    void updateToggleButton(){
+        btOnOffButton.setChecked(bluetooth.isEnabled());
+        /*
+        if(this.bluetooth.isEnabled())
+      	  btOnOff.setChecked(true);
+        else
+      	  btOnOff.setChecked(false);
+    	*/
+    }
+    
+	void setupBTbroadcastReceiver(){
+	    // Register for broadcasts on BluetoothAdapter state change
+	    // Bluetooth on/off broadcasts
+        btFilter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
+        // Discovery broadcasts
+        btFilter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
+        btFilter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+        btFilter.addAction(BluetoothDevice.ACTION_FOUND);
+        btFilter.addAction(BluetoothDevice.ACTION_NAME_CHANGED);
+	    //register receiver	    
+	    this.registerReceiver(onBTchange, btFilter);
+	    addText("broadcast receiver setup OK");		
+	}
+	
+ 	void setToggleButtonOnClickListener(){
+		btOnOffButton=(ToggleButton)findViewById(R.id.toggleButton1);
+		btOnOffButton.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				if(bluetooth.isEnabled()){
+					showToast("BT disabling not allowed");
+					btOnOffButton.setChecked(true);
+					//stopBluetooth();
+				}
+				else{
+					startBluetooth();
+					//bluetooth.enable();
+				}
+				//updateToggleButton();
+			}
+		});
+    }
+ 	
     Spinner spinner1;
     ArrayList<String> btStringList=new ArrayList<String>();
     ArrayAdapter<String> dataAdapter;
@@ -80,24 +166,18 @@ public class BluetoothActivity extends Activity {
 			}
 		});
     }
-    void setEnableButtonOnClickListener(){
-        Button enableButton=(Button)findViewById(R.id.buttonEnable);
-        enableButton.setOnClickListener(new View.OnClickListener() {		
-	  		@Override
-	  		public void onClick(View arg0) {
-	  			initBluetooth();
-	  		}
-        });
-    }
+
     
     void setSearchButtonOnClickListener(){
-    	Button searchButton=(Button)findViewById(R.id.searchButton);
-    	searchButton.setOnClickListener(new View.OnClickListener() {
+    	if(btSearch==null)
+    		btSearch=(Button)findViewById(R.id.searchButton);
+    	
+    	btSearch.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
 				if (!bluetooth.isEnabled()){
-					addText("Bluetooth is OFF");
+					addText("Bluetooth is OFF. Enable BT first.");
 					return;
 				}
 				startDiscovery();
@@ -113,53 +193,60 @@ public class BluetoothActivity extends Activity {
     
     static TextView txtLog=null;
     void addText(String s){
+    	
     	if(txtLog==null){
-    		txtLog=(TextView)findViewById(R.id.editLog);
-    		
+    		txtLog=(TextView)findViewById(R.id.textView1);    		
     	}
     	txtLog.append(s + "\n");
-    	txtLog.refreshDrawableState();
-    }
 
+		final Layout layout = txtLog.getLayout();
+		if(layout != null){
+		int scrollDelta = layout.getLineBottom(txtLog.getLineCount() - 1) - txtLog.getScrollY() - txtLog.getHeight();
+		if(scrollDelta > 0)
+			txtLog.scrollBy(0, scrollDelta);
+		}
+    	//mTxtOutput.refreshDrawableState();
+    	
+    	Log.d(gTag, s);
+    }
+    
     /**
      * Listing 16-2: Enabling Bluetooth
      */
     private static final int ENABLE_BLUETOOTH = 1;
 
-    private void initBluetooth() {
-      if (!bluetooth.isEnabled()) {
-    	  addText("Bluetooth was off");
-        // Bluetooth isn't enabled, prompt the user to turn it on.
-        Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-        startActivityForResult(intent, ENABLE_BLUETOOTH);
-      } else {
-    	  addText("Bluetooth was on");
-        // Bluetooth is enabled, initialize the UI.
-        initBluetoothUI();
-      }
-      if (bluetooth.isEnabled())
-    	  addText("Bluetooth is on");
-      else
-    	  addText("Bluetooth is off");
-    }
-
-    protected void onActivityResult(int requestCode,
-                                    int resultCode, Intent data) {
-      if (requestCode == ENABLE_BLUETOOTH)
-        if (resultCode == RESULT_OK) {
-          // Bluetooth has been enabled, initialize the UI.
-          initBluetoothUI();
+    private void startBluetooth() {
+        if (!bluetooth.isEnabled()) {
+      	  addText("Bluetooth was off");
+          // Bluetooth isn't enabled, prompt the user to turn it on.
+          Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+          startActivityForResult(intent, ENABLE_BLUETOOTH);
+        } else {
+      	  addText("Bluetooth was on");
+          // Bluetooth is enabled, initialize the UI.
+          //initBluetoothUI();
         }
-      
-      /**
-       * Listing 16-4: Monitoring discoverability request approval
-       */
-      if (requestCode == DISCOVERY_REQUEST) {
-        if (resultCode == RESULT_CANCELED) {
-          Log.d(TAG, "Discovery cancelled by user");
-        }
+        if (bluetooth.isEnabled())
+      	  addText("Bluetooth is on");
+        else
+      	  addText("Bluetooth is off");
       }
 
+    //called when BT has been enabled or not
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (requestCode == ENABLE_BLUETOOTH){
+			if (resultCode == RESULT_OK) {
+				// Bluetooth has been enabled, initialize the UI.
+				//initBluetoothUI();
+				addText("BT has been enabled");
+				btOnOffButton.setChecked(true);
+			}      
+		}
+		if (requestCode == DISCOVERY_REQUEST) {
+			if (resultCode == RESULT_CANCELED) {
+		      Log.d(TAG, "Discovery cancelled by user");
+		    }
+		}
     }
     
     private void makeDiscoverable() {
@@ -174,10 +261,15 @@ public class BluetoothActivity extends Activity {
     /**
      * Listing 16-5: Discovering remote Bluetooth Devices
      */
-    private ArrayList<BluetoothDevice> deviceList = 
-      new ArrayList<BluetoothDevice>();
+    private ArrayList<BluetoothDevice> deviceList =  new ArrayList<BluetoothDevice>();
     
-    private void startDiscovery() {registerReceiver(discoveryResult, new IntentFilter(BluetoothDevice.ACTION_FOUND));
+    private void startDiscovery() {
+    	IntentFilter discoveryFilter = new IntentFilter();
+    	discoveryFilter.addAction(BluetoothDevice.ACTION_FOUND);
+    	//discoveryFilter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
+    	//discoveryFilter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+    	
+    	registerReceiver(discoveryResult, discoveryFilter);
 
       if (bluetooth.isEnabled() && !bluetooth.isDiscovering()){
       	addText("Discovery started");
@@ -191,24 +283,78 @@ public class BluetoothActivity extends Activity {
       }
     }
 
+    //receiver for BT state changes
+    //and Discovery changes
+    private final BroadcastReceiver onBTchange = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+        	String prevStateExtra = BluetoothAdapter.EXTRA_PREVIOUS_STATE;
+        	String stateExtra = BluetoothAdapter.EXTRA_STATE;
+        	int state = intent.getIntExtra(stateExtra, -1);
+        	int previousState = intent.getIntExtra(prevStateExtra, -1);
+	  	  String action = intent.getAction();
+	  	  Log.d(gTag, "onReceive: " + action);
+	  	  String tt="";
+			switch (state) {
+				case BluetoothAdapter.STATE_OFF:
+					addText("Bluetooth off");
+					tt = "Bluetooth off";
+					btOnOffButton.setChecked(false);
+					break;
+				case BluetoothAdapter.STATE_TURNING_OFF:
+					addText("Turning Bluetooth off...");
+					tt = "Bluetooth turning off";
+					break;
+				case BluetoothAdapter.STATE_ON:
+					addText("Bluetooth on");
+					tt = "Bluetooth on";
+					btOnOffButton.setChecked(true);
+					break;
+				case BluetoothAdapter.STATE_TURNING_ON:
+					tt = "Bluetooth turning on";
+					addText("Turning Bluetooth on...");
+					break;
+			}
+			//for string compare use object.equals() not as simple == compare
+			if(action.equalsIgnoreCase(BluetoothAdapter.ACTION_DISCOVERY_STARTED)){
+				tt = "ACTION_DISCOVERY_STARTED";
+				addText("ACTION_DISCOVERY_STARTED...");
+				btSearch.setEnabled(false);
+			}
+			else if(action.equalsIgnoreCase(BluetoothAdapter.ACTION_DISCOVERY_FINISHED)){
+				tt = "ACTION_DISCOVERY_FINISHED";
+				addText("ACTION_DISCOVERY_FINISHED...");
+				btSearch.setEnabled(true);
+			}
+				
+			Log.d(gTag, tt);
+        }
+    };
+    
     //this is called for every discovered device
     BroadcastReceiver discoveryResult = new BroadcastReceiver() {
       @Override
       public void onReceive(Context context, Intent intent) {
     	  String action = intent.getAction();
-    	  if(BluetoothAdapter.ACTION_DISCOVERY_FINISHED==action){
+    	  /*
+    	  if(BluetoothAdapter.ACTION_DISCOVERY_STARTED==action){
+    		  addText("discovery started");
+    	  }
+    	  else if(BluetoothAdapter.ACTION_DISCOVERY_FINISHED==action){
     		  addText("Discovery finished");
     		  dataAdapter.notifyDataSetChanged();
     	  }
-    	  
-        String remoteDeviceName = intent.getStringExtra(BluetoothDevice.EXTRA_NAME);
-        BluetoothDevice remoteDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-
-        deviceList.add(remoteDevice);
-        addText(remoteDeviceName + "(" + remoteDevice.getAddress().toString() + ")");
-        addItem(remoteDevice.getAddress().toString());
-        
-        Log.d(TAG, "Discovered " + remoteDeviceName);
+    	  */
+    	  if(BluetoothDevice.ACTION_FOUND==action){
+				String remoteDeviceName = intent.getStringExtra(BluetoothDevice.EXTRA_NAME);
+				BluetoothDevice remoteDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+				
+				deviceList.add(remoteDevice);
+				addText(remoteDeviceName + "(" + remoteDevice.getAddress().toString() + ")");
+				addItem(remoteDevice.getAddress().toString());
+				
+				Log.d(TAG, "Discovered " + remoteDeviceName);
+    	  }
       }
     };
     
