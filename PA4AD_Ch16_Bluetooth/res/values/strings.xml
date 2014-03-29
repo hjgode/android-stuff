@@ -9,5 +9,6 @@
     <string name="selectButtonString">Select Device</string>
     <string name="btOn">BT ein</string>
     <string name="btOff">BT aus</string>
+    <string name="machint">The MAC of the BT device to use</string>
 
 </resources>

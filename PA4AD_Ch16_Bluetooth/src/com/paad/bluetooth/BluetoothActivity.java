@@ -18,25 +18,38 @@ import android.os.Bundle;
 import android.text.Layout;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 import android.app.ListActivity;
 import android.widget.*;
+import android.widget.AdapterView.OnItemSelectedListener;
 
-public class BluetoothActivity extends Activity {
+public class BluetoothActivity extends Activity implements OnItemSelectedListener{
   
+    //globals
+    String gTag="BluetoothActivity";
     protected static final String TAG = "BLUETOOTH";
     protected static final int DISCOVERY_REQUEST = 1;
     BluetoothAdapter bluetooth;
     IntentFilter btFilter=new IntentFilter();
     
+    //UI elements
     ToggleButton btOnOffButton=null;
     Button btSearch=null;
-    
-    String gTag="BluetoothActivity";
+    TextView selectedMac=null;
 
+    Spinner spinner1;
+    ArrayList<String> btStringList=new ArrayList<String>();
+    ArrayAdapter<String> dataAdapter;
+    ArrayList<BluetoothDevice> deviceList =  new ArrayList<BluetoothDevice>();
+    
+    Button selectDevice=null;
+
+    static TextView txtLog=null;
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
@@ -53,15 +66,20 @@ public class BluetoothActivity extends Activity {
 		     
 		setupBTbroadcastReceiver();
 		
-      btOnOffButton=(ToggleButton)findViewById(R.id.toggleButton1);
       btSearch=(Button)findViewById(R.id.searchButton);
+      selectedMac=(TextView)findViewById(R.id.editMac);
       
+      btOnOffButton=(ToggleButton)findViewById(R.id.toggleButton1);
+      setToggleButtonOnClickListener();
       updateToggleButton();
       
-      setToggleButtonOnClickListener();
-      
+  	  spinner1 = (Spinner) findViewById(R.id.spinner1);
       initSpinner();
-      setSearchButtonOnClickListener();
+
+	  btSearch=(Button)findViewById(R.id.searchButton);
+  	  setSearchButtonOnClickListener();
+  	  
+      selectDevice=(Button)findViewById(R.id.selectButton);
       setSelectButtonOnClickListener();
 
     }
@@ -90,12 +108,6 @@ public class BluetoothActivity extends Activity {
 	
     void updateToggleButton(){
         btOnOffButton.setChecked(bluetooth.isEnabled());
-        /*
-        if(this.bluetooth.isEnabled())
-      	  btOnOff.setChecked(true);
-        else
-      	  btOnOff.setChecked(false);
-    	*/
     }
     
 	void setupBTbroadcastReceiver(){
@@ -113,7 +125,6 @@ public class BluetoothActivity extends Activity {
 	}
 	
  	void setToggleButtonOnClickListener(){
-		btOnOffButton=(ToggleButton)findViewById(R.id.toggleButton1);
 		btOnOffButton.setOnClickListener(new View.OnClickListener() {
 			
 			@Override
@@ -132,34 +143,27 @@ public class BluetoothActivity extends Activity {
 		});
     }
  	
-    Spinner spinner1;
-    ArrayList<String> btStringList=new ArrayList<String>();
-    ArrayAdapter<String> dataAdapter;
-    CustomOnItemSelectedListener listItemListener;
     private void initSpinner() {
     	btStringList.clear();
-    	btStringList.add("Zeile1");
-    	btStringList.add("Zeile2");
-    	btStringList.add("Zeile3");
+//    	btStringList.add("Zeile1");
+//    	btStringList.add("Zeile2");
+//    	btStringList.add("Zeile3");
     	
-    	spinner1 = (Spinner) findViewById(R.id.spinnerBT);
+		spinner1.setOnItemSelectedListener(this);	//attach itemSelected listener 
+		
     	dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, btStringList);
     	//dataAdapter.setDropDownViewResource(android.R.layout.simple_list_item_single_choice);
+
     	spinner1.setAdapter(dataAdapter);
-		spinner1 = (Spinner) findViewById(R.id.spinnerBT);
-		listItemListener=new CustomOnItemSelectedListener();
-		spinner1.setOnItemSelectedListener(listItemListener); 
 	}
 
 	void setSelectButtonOnClickListener(){
-    	Button selectDevice=(Button)findViewById(R.id.selectButton);
     	selectDevice.setOnClickListener(new View.OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
 				TextView tvMac = (TextView)findViewById(R.id.editMac);
-				spinner1=(Spinner)findViewById(R.id.spinnerBT);
 				
 				tvMac.setText(spinner1.getSelectedItem().toString());
 				tvMac.refreshDrawableState();
@@ -167,11 +171,7 @@ public class BluetoothActivity extends Activity {
 		});
     }
 
-    
     void setSearchButtonOnClickListener(){
-    	if(btSearch==null)
-    		btSearch=(Button)findViewById(R.id.searchButton);
-    	
     	btSearch.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -180,20 +180,20 @@ public class BluetoothActivity extends Activity {
 					addText("Bluetooth is OFF. Enable BT first.");
 					return;
 				}
+				btStringList.clear();
 				startDiscovery();
 			}
 		});
     }
     
+    //called when device is found
     void addItem(String s){
-    	btStringList.add(s);
+    	//btStringList.add(s);
+    	dataAdapter.add(s);
     	//dataAdapter.add(s);
     }
     
-    
-    static TextView txtLog=null;
     void addText(String s){
-    	
     	if(txtLog==null){
     		txtLog=(TextView)findViewById(R.id.textView1);    		
     	}
@@ -261,8 +261,6 @@ public class BluetoothActivity extends Activity {
     /**
      * Listing 16-5: Discovering remote Bluetooth Devices
      */
-    private ArrayList<BluetoothDevice> deviceList =  new ArrayList<BluetoothDevice>();
-    
     private void startDiscovery() {
     	IntentFilter discoveryFilter = new IntentFilter();
     	discoveryFilter.addAction(BluetoothDevice.ACTION_FOUND);
@@ -325,6 +323,7 @@ public class BluetoothActivity extends Activity {
 				tt = "ACTION_DISCOVERY_FINISHED";
 				addText("ACTION_DISCOVERY_FINISHED...");
 				btSearch.setEnabled(true);
+				dataAdapter.notifyDataSetChanged();
 			}
 				
 			Log.d(gTag, tt);
@@ -345,7 +344,7 @@ public class BluetoothActivity extends Activity {
     		  dataAdapter.notifyDataSetChanged();
     	  }
     	  */
-    	  if(BluetoothDevice.ACTION_FOUND==action){
+    	  if(action.equals(BluetoothDevice.ACTION_FOUND)){
 				String remoteDeviceName = intent.getStringExtra(BluetoothDevice.EXTRA_NAME);
 				BluetoothDevice remoteDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
 				
@@ -473,5 +472,17 @@ public class BluetoothActivity extends Activity {
       // TODO Update the UI now that Bluetooth is enabled. 
     	
     }
+
+	@Override
+	public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2,
+			long arg3) {
+		selectedMac.setText(spinner1.getSelectedItem().toString());
+	}
+
+	@Override
+	public void onNothingSelected(AdapterView<?> arg0) {
+		// TODO Auto-generated method stub
+		selectedMac.setText("");
+	}
 }
 
