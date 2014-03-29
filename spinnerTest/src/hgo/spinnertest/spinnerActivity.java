@@ -68,7 +68,7 @@ public class spinnerActivity extends Activity{
 		spinner1 = (Spinner) findViewById(R.id.spinner1);
 		
 		dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, btStringList);
-		
+		dataAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
 		//dataAdapter.setDropDownViewResource(android.R.layout.simple_list_item_single_choice);
 		spinner1.setAdapter(dataAdapter);
 
