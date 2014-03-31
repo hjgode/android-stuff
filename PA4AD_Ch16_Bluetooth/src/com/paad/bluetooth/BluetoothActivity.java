@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Set;
 import java.util.UUID;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -15,6 +16,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Layout;
 import android.util.Log;
 import android.view.View;
@@ -39,15 +41,19 @@ public class BluetoothActivity extends Activity implements OnItemSelectedListene
     //UI elements
     ToggleButton btOnOffButton=null;
     Button btSearch=null;
-    TextView selectedMac=null;
 
     Spinner spinner1;
     ArrayList<String> btStringList=new ArrayList<String>();
     ArrayAdapter<String> dataAdapter;
     ArrayList<BluetoothDevice> deviceList =  new ArrayList<BluetoothDevice>();
     
+    TextView selectedMac=null;
     Button selectDevice=null;
 
+    Button btnConnect=null;
+    Button btnDisconnect=null;
+    
+    private static final UUID UUID_SPP = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
     static TextView txtLog=null;
     
     @Override
@@ -82,8 +88,67 @@ public class BluetoothActivity extends Activity implements OnItemSelectedListene
       selectDevice=(Button)findViewById(R.id.selectButton);
       setSelectButtonOnClickListener();
 
+      btnConnect=(Button)findViewById(R.id.btn_connect);
+      setConnectButtonOnClickListener();
+      
+      btnDisconnect=(Button)findViewById(R.id.btn_disconnect);
+      setDisconnectButtonOnClickListener();
     }
     
+	private void setDisconnectButtonOnClickListener() {
+		// TODO Auto-generated method stub
+		btnDisconnect.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				//try a connect
+				if(transferSocket!=null){
+					//if(transferSocket.close()){
+						addText("Disconnecting...");
+						try {
+							listening=false;
+							transferSocket.close();
+							addText("disconnected");
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+							addText(e.getMessage().toString());
+						}
+					//}
+				}
+			}
+		});
+		
+	}
+
+	private void setConnectButtonOnClickListener() {
+		// TODO Auto-generated method stub
+		btnConnect.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				//try a connect
+				String txtMac=selectedMac.getText().toString();
+				BluetoothDevice device = bluetooth.getRemoteDevice(txtMac);
+				if(device==null)
+					addText("bluetooth device invalid");
+				else
+					addText("Bluetooth device valid");
+				Set<BluetoothDevice> bondedDevices = bluetooth.getBondedDevices();
+				if (!bondedDevices.contains(device)){
+					// TODO Target device is not bonded / paired with the local device.
+					addText("Bluetooth device needs bonding...");
+					//device.createBond();
+				}
+				if(device!=null){
+					addText("connecting...");
+					connectToServerSocket(device, UUID_SPP);
+				}
+			}
+		});
+
+	}
+
 	@Override
 	public void onPause(){
 		super.onPause();
@@ -155,6 +220,14 @@ public class BluetoothActivity extends Activity implements OnItemSelectedListene
     	//dataAdapter.setDropDownViewResource(android.R.layout.simple_list_item_single_choice);
 
     	spinner1.setAdapter(dataAdapter);
+    	
+    	//get bonded devices
+    	if(bluetooth.isEnabled()){
+    		Set<BluetoothDevice> bondedDevices = bluetooth.getBondedDevices();
+    		for(BluetoothDevice dev:bondedDevices){
+    			dataAdapter.add(dev.getAddress());
+    		}
+    	}
 	}
 
 	void setSelectButtonOnClickListener(){
@@ -162,11 +235,8 @@ public class BluetoothActivity extends Activity implements OnItemSelectedListene
 			
 			@Override
 			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				TextView tvMac = (TextView)findViewById(R.id.editMac);
-				
-				tvMac.setText(spinner1.getSelectedItem().toString());
-				tvMac.refreshDrawableState();
+				selectedMac.setText(spinner1.getSelectedItem().toString());
+				selectedMac.refreshDrawableState();
 			}
 		});
     }
@@ -392,23 +462,92 @@ public class BluetoothActivity extends Activity implements OnItemSelectedListene
       return uuid;
     }
 
+    //################## background threads #####################
+    //This method is called on the main GUI thread.
+    StringBuilder incoming=new StringBuilder();
+    private void backgroundExecution() {
+	    // This moves the time consuming operation to a child thread.
+	    Thread thread = new Thread(null, doBackgroundThreadProcessing, "Background");
+	    thread.start();
+    }
+    // Runnable that executes the background processing method.
+    private Runnable doBackgroundThreadProcessing = new Runnable() {
+	    public void run() {
+	    	backgroundThreadProcessing();
+	    }
+    };
+    // Method which does some processing in the background.
+    private void backgroundThreadProcessing() {
+	    // [ ... Time consuming operations ... ]
+        listening = true;
+        int bufferSize = 1024;
+        byte[] buffer = new byte[bufferSize];
+
+        try {
+          InputStream instream = transferSocket.getInputStream();
+          int bytesRead = -1;
+
+          while (listening) {
+            bytesRead = instream.read(buffer);
+            if (bytesRead != -1) {
+              String result = "";
+              while ((bytesRead == bufferSize) &&  (buffer[bufferSize-1] != 0)){
+              	addText(">>>" + new String(buffer, 0, bytesRead - 1));
+                result = result + new String(buffer, 0, bytesRead - 1);
+                bytesRead = instream.read(buffer);
+              }
+              result = result + new String(buffer, 0, bytesRead - 1);
+              incoming.append(result);
+              
+				// Use the Handler to post the doUpdateGUI 
+				// runnable on the main UI thread.
+				handler.post(doUpdateGUI);
+            }
+            //socket.close();
+          }
+        } catch (IOException e) {
+          Log.e(TAG, "Message received failed.", e);
+        }
+        finally {
+        }
+    }
+    //Initialize a handler on the main thread.
+    private Handler handler = new Handler();
+    // Runnable that executes the updateGUI method.
+    private Runnable doUpdateGUI = new Runnable() {
+	    public void run() {
+	    updateGUI();
+	    }
+    };
+    // This method must be called on the UI thread.
+    private void updateGUI() {
+	    // [ ... Open a dialog or modify a GUI element ... ]
+    	addText(incoming.toString());
+    }
+    //################## background threads END #####################
+    
     /**
      * Listing 16-7: Creating a Bluetooth client socket
      */
     private void connectToServerSocket(BluetoothDevice device, UUID uuid) {
       try{
-        BluetoothSocket clientSocket 
-          = device.createRfcommSocketToServiceRecord(uuid);
+        BluetoothSocket clientSocket = device.createRfcommSocketToServiceRecord(uuid);
 
         // Block until server connection accepted.
+        addText("Waiting for connect");
         clientSocket.connect();
-
-        // Start listening for messages.
-        StringBuilder incoming = new StringBuilder();
-        listenForMessages(clientSocket, incoming);
-
+        addText("connected!");
+        //send something
+        sendMessage(clientSocket, "Hello World!");
+        addText("msg sent");
+        
         // Add a reference to the socket used to send messages.
         transferSocket = clientSocket;
+
+        // Start listening for messages.
+        //StringBuilder incoming = new StringBuilder();
+        //listenForMessages(clientSocket, incoming);
+        backgroundExecution();
 
       } catch (IOException e) {
         Log.e("BLUETOOTH", "Blueooth client I/O Exception", e);
@@ -435,11 +574,8 @@ public class BluetoothActivity extends Activity implements OnItemSelectedListene
 
     private boolean listening = false;
      
-    private void listenForMessages(BluetoothSocket socket, 
-                                   StringBuilder incoming) {
+    private void listenForMessages(BluetoothSocket socket, StringBuilder incoming) {
       listening = true;
-
-
       int bufferSize = 1024;
       byte[] buffer = new byte[bufferSize];
 
@@ -451,8 +587,8 @@ public class BluetoothActivity extends Activity implements OnItemSelectedListene
           bytesRead = instream.read(buffer);
           if (bytesRead != -1) {
             String result = "";
-            while ((bytesRead == bufferSize) &&
-                   (buffer[bufferSize-1] != 0)){
+            while ((bytesRead == bufferSize) &&  (buffer[bufferSize-1] != 0)){
+            	addText(">>>" + new String(buffer, 0, bytesRead - 1));
               result = result + new String(buffer, 0, bytesRead - 1);
               bytesRead = instream.read(buffer);
             }

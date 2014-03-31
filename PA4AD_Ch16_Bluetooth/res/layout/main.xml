@@ -38,6 +38,12 @@
         android:layout_height="wrap_content"
         android:text="@string/selectButtonString" />
 
+    <Button
+        android:id="@+id/btn_connect"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Connect" />
+
     <ScrollView
         android:id="@+id/scrollView1"
         android:layout_width="match_parent"
@@ -48,11 +54,17 @@
             android:layout_height="match_parent"
             android:orientation="vertical" >
 
+            <Button
+                android:id="@+id/btn_disconnect"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="disconnect" />
+
             <TextView
                 android:id="@+id/textView1"
                 android:layout_width="match_parent"
-                android:layout_height="147dp"
-                android:text="TextView" />
+                android:layout_height="147dp" />
+
         </LinearLayout>
     </ScrollView>
 
