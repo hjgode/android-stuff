@@ -2,12 +2,14 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    android:scrollbars="horizontal" >
 
     <ToggleButton
         android:id="@+id/toggleButton1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:overScrollMode="always"
         android:textOff="@string/btOff"
         android:textOn="@string/btOn" />
 
@@ -17,55 +19,64 @@
         android:layout_height="wrap_content"
         android:text="@string/search_bluetooth" />
 
-<!--          android:spinnerMode="dropdown" -->
+    <!-- android:spinnerMode="dropdown" -->
 
     <Spinner
         android:id="@+id/spinner1"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="50dp" />
 
     <EditText
         android:id="@+id/editMac"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:hint="@string/machint"
-         />
+        android:hint="@string/machint" />
 
-    <Button
-        android:id="@+id/selectButton"
+    <GridLayout
+        android:id="@+id/GridLayout1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/selectButtonString" />
+        android:columnCount="2"
+        android:orientation="horizontal"
+        android:rowCount="2" >
 
-    <Button
-        android:id="@+id/btn_connect"
+        <Button
+            android:id="@+id/selectButton"
+            android:layout_width="157dp"
+            android:layout_gravity="left|top"
+            android:text="@string/selectButtonString" />
+
+        <Button
+            android:id="@+id/btn_connect"
+            android:layout_width="158dp"
+            android:layout_gravity="left|top"
+            android:text="Connect" />
+
+        <Button
+            android:id="@+id/btn_disconnect"
+            android:layout_width="157dp"
+            android:layout_gravity="left|top"
+            android:text="disconnect" />
+
+        <Button
+            android:id="@+id/btnFinish"
+            android:layout_width="78dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left|top"
+            android:text="eXit" />
+    </GridLayout>
+
+    <EditText
+        android:id="@+id/editText1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Connect" />
+        android:layout_weight="0.38"
+        android:ems="10"
+        android:gravity="top|left"
+        android:inputType="textMultiLine" >
 
-    <ScrollView
-        android:id="@+id/scrollView1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical" >
-
-            <Button
-                android:id="@+id/btn_disconnect"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="disconnect" />
-
-            <TextView
-                android:id="@+id/textView1"
-                android:layout_width="match_parent"
-                android:layout_height="147dp" />
-
-        </LinearLayout>
-    </ScrollView>
+        <requestFocus />
+    </EditText>
 
 </LinearLayout>

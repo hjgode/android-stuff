@@ -1,3 +1,4 @@
-default_repository_dir=D\:\\svn\\git\\android-stuff
+commit_dialog_history_messages=<?xml version\="1.0" encoding\="UTF-8"?>\r\n<messages>\r\n<message>test</message>\r\n<message>first</message>\r\n</messages>
+default_repository_dir=D\:\\svn\\git\\androidstuff
 eclipse.preferences.version=1
 merge_mode=0
